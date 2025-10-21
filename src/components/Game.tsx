@@ -89,16 +89,18 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
 
     const spawnAlien = (canvasWidth: number, ctx: CanvasRenderingContext2D): Alien => {
         const code = codes[Math.floor(Math.random() * codes.length)];
-        ctx.font = '18px Consolas'; // must match draw font
+        ctx.font = '18px Consolas';
         const textWidth = ctx.measureText(code).width;
         const margin = 10;
 
-        // pick a random x, then clamp so text stays fully inside
-        let x = margin + Math.random() * (canvasWidth - textWidth - margin * 2);
-        if (x < margin) x = margin;
-        if (x + textWidth > canvasWidth - margin) {
-            x = canvasWidth - textWidth - margin;
-        }
+        // safe range for x so text never clips
+        const minX = margin;
+        const maxX = canvasWidth - textWidth - margin;
+
+        // if maxX < minX (tiny window), just pin to margin
+        const x = maxX > minX
+            ? minX + Math.random() * (maxX - minX)
+            : minX;
 
         const speed = keywordSpeeds[code] ?? 1.5;
         const rotationSpeed = (Math.random() - 0.5) * 0.1;
