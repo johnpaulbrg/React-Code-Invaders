@@ -121,10 +121,27 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
+        // inside your useEffect where you set up resizeCanvas
         const resizeCanvas = () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+
+            // after resizing, re‑clamp all aliens
+            ctx.font = '18px Consolas';
+            const margin = 10;
+            aliensRef.current = aliensRef.current.map(a => {
+                const textWidth = ctx.measureText(a.code).width;
+                let newX = a.x;
+
+                if (newX < margin) newX = margin;
+                if (newX + textWidth > canvas.width - margin) {
+                newX = canvas.width - textWidth - margin;
+                }
+
+                return { ...a, x: newX };
+            });
         };
+
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
