@@ -87,9 +87,12 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
 
     const keywordSpeeds: Record<string, number> = pickFastKeywords(codes, 10);
 
-    const spawnAlien = (canvasWidth: number): Alien => {
+    const spawnAlien = (canvasWidth: number, ctx: CanvasRenderingContext2D): Alien => {
         const code = codes[Math.floor(Math.random() * codes.length)];
-        const x = Math.random() * (canvasWidth - 40);
+        ctx.font = '18px Consolas'; // must match draw font
+        const textWidth = ctx.measureText(code).width;
+        const margin = 10;
+        const x = margin + Math.random() * (canvasWidth - textWidth - margin * 2);
         const speed = keywordSpeeds[code] ?? 1.5;
         const rotationSpeed = (Math.random() - 0.5) * 0.1;
         return { code, x, y: 0, speed, angle: 0, rotationSpeed };
@@ -125,7 +128,7 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
             const height = canvas.height;
 
             if (time - lastSpawnRef.current > 2000) {
-                aliensRef.current.push(spawnAlien(width));
+                aliensRef.current.push(spawnAlien(width, ctx));
                 totalSpawnedRef.current += 1; // increment total
                 lastSpawnRef.current = time;
             }
@@ -170,7 +173,7 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
             ctx.textBaseline = 'bottom';
             ctx.fillText(`Typed: ${inputRef.current}`, width / 2, height - 20);
 
-             // Draw score (top right)
+            // Draw score (top right)
             ctx.fillStyle = 'white';
             ctx.font = '20px Consolas';
             ctx.textAlign = 'right'; 
