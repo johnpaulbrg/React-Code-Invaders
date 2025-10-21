@@ -1,6 +1,6 @@
 /**
  * Game.tsx
- * 
+ *
  * Author: John Paul Brogan
  * Date: 2025-10-21
  * Copyright © 2025 John Paul Brogan. All rights reserved.
@@ -37,7 +37,7 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = "square";
-        osc.frequency.value = 440 + Math.random() * 200; // randomize pitch
+        osc.frequency.value = 440 + Math.random() * 200;
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start();
@@ -50,7 +50,7 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = "sine";
-        osc.frequency.value = 120; // low pitch
+        osc.frequency.value = 120;
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start();
@@ -58,23 +58,19 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
         osc.stop(ctx.currentTime + 0.4);
     }
 
-    // Update browser tab title when language changes
     useEffect(() => {
         document.title = `React-Code-Invaders ${language}`;
     }, [language]);
 
-    // Game state stored in refs (no re-renders per frame)
     const aliensRef = useRef<Alien[]>([]);
     const inputRef = useRef<string>('');
     const lastSpawnRef = useRef<number>(0);
 
-    // Score tracking
     const matchedCountRef = useRef<number>(0);
     const totalSpawnedRef = useRef<number>(0);
 
     const codes = [...new Set([...words.keywords, ...words.primitives])];
 
-    // Utility: pick N random keywords and assign them very fast speeds
     const pickFastKeywords = (codes: string[], count: number): Record<string, number> => {
         const shuffled = [...codes].sort(() => Math.random() - 0.5);
         const selected = shuffled.slice(0, count);
@@ -93,11 +89,9 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
         const textWidth = ctx.measureText(code).width;
         const margin = 10;
 
-        // safe range for x so text never clips
         const minX = margin;
         const maxX = canvasWidth - textWidth - margin;
 
-        // if maxX < minX (tiny window), just pin to margin
         const x = maxX > minX
             ? minX + Math.random() * (maxX - minX)
             : minX;
@@ -116,32 +110,35 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
         "default": "red"
     };
 
-    // Animation Loop
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // inside your useEffect where you set up resizeCanvas
-        const resizeCanvas = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        let oldWidth = window.innerWidth;
 
-            // after resizing, re‑clamp all aliens
+        const resizeCanvas = () => {
+            const newWidth = window.innerWidth;
+            const newHeight = window.innerHeight;
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+
+            const scale = newWidth / oldWidth;
             ctx.font = '18px Consolas';
             const margin = 10;
+
             aliensRef.current = aliensRef.current.map(a => {
                 const textWidth = ctx.measureText(a.code).width;
-                let newX = a.x;
-
+                let newX = a.x * scale; // proportional scaling
                 if (newX < margin) newX = margin;
-                if (newX + textWidth > canvas.width - margin) {
-                newX = canvas.width - textWidth - margin;
+                if (newX + textWidth > newWidth - margin) {
+                    newX = newWidth - textWidth - margin;
                 }
-
                 return { ...a, x: newX };
             });
+
+            oldWidth = newWidth;
         };
 
         resizeCanvas();
@@ -155,7 +152,7 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
 
             if (time - lastSpawnRef.current > 2000) {
                 aliensRef.current.push(spawnAlien(width, ctx));
-                totalSpawnedRef.current += 1; // increment total
+                totalSpawnedRef.current += 1;
                 lastSpawnRef.current = time;
             }
 
@@ -164,14 +161,14 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
                 const newAngle = a.angle + a.rotationSpeed;
 
                 if (a.flashUntil && performance.now() > a.flashUntil) {
-                    return acc; // remove after flash
+                    return acc;
                 }
 
                 if (newY < height - 20) {
                     acc.push({ ...a, y: newY, angle: newAngle });
                 } else {
                     inputRef.current = '';
-                    playThud(); // 🔊 play miss sound
+                    playThud();
                 }
                 return acc;
             }, []);
@@ -180,30 +177,28 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
             ctx.fillRect(0, 0, width, height);
 
             ctx.font = '18px Consolas';
+            ctx.textAlign = 'start';
+            ctx.textBaseline = 'top';
             aliensRef.current.forEach((a) => {
                 ctx.save();
                 ctx.translate(a.x, a.y);
-                if (a.flashUntil && performance.now() < a.flashUntil) {
-                    ctx.fillStyle = 'white';
-                } else {
-                    ctx.fillStyle = languageColors[language] ?? languageColors["default"];
-                }
+                ctx.fillStyle = (a.flashUntil && performance.now() < a.flashUntil)
+                    ? 'white'
+                    : (languageColors[language] ?? languageColors["default"]);
                 ctx.fillText(a.code, 0, 0);
                 ctx.restore();
             });
 
-            // Draw typed input
             ctx.fillStyle = 'white';
             ctx.font = '20px Consolas';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
             ctx.fillText(`Typed: ${inputRef.current}`, width / 2, height - 20);
 
-            // Draw score (top right)
             ctx.fillStyle = 'white';
             ctx.font = '20px Consolas';
-            ctx.textAlign = 'right'; 
-            ctx.textBaseline = 'top'; 
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'top';
             ctx.fillText(
                 `Score: ${matchedCountRef.current}/${totalSpawnedRef.current}`,
                 width - 10,
@@ -220,7 +215,6 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
         };
     }, [language]);
 
-    // Input handling
     useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
             if (e.key.length === 1) {
@@ -228,8 +222,8 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
                 const match = aliensRef.current.find((a) => a.code === inputRef.current);
                 if (match) {
                     match.flashUntil = performance.now() + 150;
-                    playBeep(); // 🔊 play match sound
-                    matchedCountRef.current += 1; // increment matched
+                    playBeep();
+                    matchedCountRef.current += 1;
                     inputRef.current = '';
                 }
             }
