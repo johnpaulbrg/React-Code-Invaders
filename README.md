@@ -21,6 +21,7 @@ git clone https://github.com/your-username/code-invaders.git
 cd code-invaders
 npm install
 npm run dev
+```
 
 ## 🌐 Live Demo
 Play it here: [Code Invaders on GitHub Pages](https://johnpaulbrg.github.io/react-code-invaders/)
