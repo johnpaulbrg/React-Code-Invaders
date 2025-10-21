@@ -92,7 +92,14 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
         ctx.font = '18px Consolas'; // must match draw font
         const textWidth = ctx.measureText(code).width;
         const margin = 10;
-        const x = margin + Math.random() * (canvasWidth - textWidth - margin * 2);
+
+        // pick a random x, then clamp so text stays fully inside
+        let x = margin + Math.random() * (canvasWidth - textWidth - margin * 2);
+        if (x < margin) x = margin;
+        if (x + textWidth > canvasWidth - margin) {
+            x = canvasWidth - textWidth - margin;
+        }
+
         const speed = keywordSpeeds[code] ?? 1.5;
         const rotationSpeed = (Math.random() - 0.5) * 0.1;
         return { code, x, y: 0, speed, angle: 0, rotationSpeed };
