@@ -182,6 +182,7 @@ const Game: React.FC<GameProps> = ({ words, language }) => {
             aliensRef.current.forEach((a) => {
                 ctx.save();
                 ctx.translate(a.x, a.y);
+                ctx.rotate(a.angle);
                 ctx.fillStyle = (a.flashUntil && performance.now() < a.flashUntil)
                     ? 'white'
                     : (languageColors[language] ?? languageColors["default"]);
