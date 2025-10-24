@@ -17,11 +17,11 @@ Arcade‑style React/TypeScript game that helps you learn programming keywords b
 Clone the repo and install dependencies:
 
 ```bash
-git clone https://github.com/johnpaulbrg/react-code-invaders.git
+git clone https://github.com/johnpaulbrg/React-Code-Invaders.git
 cd code-invaders
 npm install
 npm run dev
 ```
 
 ## 🌐 Live Demo
-Play it here: [Code Invaders on GitHub Pages](https://johnpaulbrg.github.io/react-code-invaders/)
+Play it here: [Code Invaders on GitHub Pages](https://johnpaulbrg.github.io/React-Code-Invaders/)
