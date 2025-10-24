@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://johnpaulbrg.github.io/react-code-invaders",
+  "homepage": "https://johnpaulbrg.github.io/React-Code-Invaders",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
