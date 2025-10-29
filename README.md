@@ -18,7 +18,7 @@ Clone the repo and install dependencies:
 
 ```bash
 git clone https://github.com/johnpaulbrg/React-Code-Invaders.git
-cd code-invaders
+cd React-Code-Invaders
 npm install
 npm run dev
 ```
